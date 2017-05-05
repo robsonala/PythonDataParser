@@ -1,0 +1,53 @@
+
+{
+    "name": "queue_test",
+    "isDurable": true,
+    "splitFile": true,
+    "sender_threads": 1,
+    "listener_threads": 3,
+    
+    "in": {
+        "new_path": "/home/ubuntu/workspace/test/files/in",
+        "archive_path": "/home/ubuntu/workspace/test/files/out",
+        "file_match": ["ECO_CUSTOMERS_*.dat"],
+        "type_parser": "CSV",
+        "order_files": true,
+        "ignore_first_line": true,
+        "fields": {
+            "acc_num_0": 0,
+            "acc_typ_1": 1,
+            "cmp_nm_2": 2,
+            "inv_addr1_3": 3,
+            "inv_addr2_4": 4,
+            "inv_addr3_5": 5,
+            "inv_addr4_6": 6
+        }
+    },
+    
+    "listener_rules": {
+        "format": "JSON",
+        "action": ["mysql"],
+        "mysql": [
+            {
+                "conn": "fatdb",
+                "table": "customers",
+                "action": "UPDATE_DUPLICATED",
+                "bootstrap": {
+                    "account_number": "acc_num_0",
+                    "account_type": "acc_typ_1",
+                    "company_name": "cmp_nm_2",
+                    "inv_addr1": "inv_addr1_3",
+                    "inv_addr2": "inv_addr2_4",
+                    "inv_addr3": "inv_addr3_5",
+                    "inv_addr4": "inv_addr4_6",
+                    "din": "%DATE_NOW",
+                    "dup": "%DATE_NOW"
+                },
+                "bootstrap_not_update": [
+                    "din",
+                    "account_number"
+                ]
+            }
+        ]
+    }
+}
